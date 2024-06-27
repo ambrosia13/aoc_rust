@@ -16,35 +16,16 @@ fn sum_calibrations(input: &str) -> u32 {
 }
 
 fn convert_words_to_digits(input: &str) -> String {
-    const NUMBERS: &[(&str, u32)] = &[
-        // ("eight", 8),
-        // ("seven", 7),
-        // ("three", 3),
-        // ("nine", 9),
-        // ("five", 5),
-        // ("four", 4),
-        // ("six", 6),
-        // ("two", 2),
-        // ("one", 1),
-
-        // ("one", 1),
-        // ("two", 2),
-        // ("six", 6),
-        // ("four", 4),
-        // ("five", 5),
-        // ("nine", 9),
-        // ("three", 3),
-        // ("seven", 7),
-        // ("eight", 8),
-        ("one", 1),
-        ("two", 2),
-        ("three", 3),
-        ("four", 4),
-        ("five", 5),
-        ("six", 6),
-        ("seven", 7),
-        ("eight", 8),
-        ("nine", 9),
+    const NUMBERS: &[(&str, char)] = &[
+        ("one", '1'),
+        ("two", '2'),
+        ("three", '3'),
+        ("four", '4'),
+        ("five", '5'),
+        ("six", '6'),
+        ("seven", '7'),
+        ("eight", '8'),
+        ("nine", '9'),
     ];
 
     let mut converted = String::new();
@@ -60,7 +41,10 @@ fn convert_words_to_digits(input: &str) -> String {
                     .get(i..(i + word.len()))
                     .is_some_and(|lookahead| lookahead == word)
                 {
-                    converted.push(char::from_digit(digit, 10).unwrap());
+                    converted.push(digit);
+
+                    // We found a word to replace, advance the pointer by the word length
+                    // and continue searching from there
                     i += word.len();
 
                     continue 'character_iter;
