@@ -28,6 +28,8 @@ fn convert_words_to_digits(input: &str) -> String {
         ("nine", '9'),
     ];
 
+    const MIN_NUMBER_WORD_LEN: usize = 2;
+
     let mut converted = String::new();
 
     for line in input.lines() {
@@ -35,7 +37,13 @@ fn convert_words_to_digits(input: &str) -> String {
 
         let mut i = 0;
 
-        'character_iter: while i < bytes.len() {
+        // We only need to iterate until the length minus the length of the shortest number-word
+        let iter_bound = line.len();
+        let iter_bound = iter_bound
+            .checked_sub(MIN_NUMBER_WORD_LEN)
+            .unwrap_or(iter_bound);
+
+        'character_iter: while i < iter_bound {
             for &(word, digit) in NUMBERS {
                 if line
                     .get(i..(i + word.len()))
@@ -46,37 +54,19 @@ fn convert_words_to_digits(input: &str) -> String {
                     // We found a word to replace, advance the pointer by the word length
                     // and continue searching from there
                     i += word.len();
-
                     continue 'character_iter;
                 }
             }
 
+            // No replacement was found, just add the char as-is
             converted.push(bytes[i] as char);
 
             i += 1;
         }
 
-        // let mut replaced_word_length = 0;
-        //
-        // for (index, ch) in line.trim().char_indices() {
-        //     'replace_word: for &(word, digit) in NUMBERS {
-        //         if line
-        //             .get(index..(index + word.len()))
-        //             .is_some_and(|lookahead| lookahead == word)
-        //         {
-        //             converted.push(char::from_digit(digit, 10).unwrap());
-        //             replaced_word_length = word.len();
-        //
-        //             break 'replace_word;
-        //         }
-        //     }
-        //
-        //     if replaced_word_length == 0 {
-        //         converted.push(ch);
-        //     } else {
-        //         replaced_word_length -= 1;
-        //     }
-        // }
+        // Push the part of the string we didn't iterate over, since a word can't be replaced
+        // in that substring
+        converted.push_str(&line[iter_bound..line.len()]);
 
         converted.push('\n');
     }
@@ -89,6 +79,6 @@ pub fn part_one() -> u32 {
 }
 
 pub fn part_two() -> u32 {
-    let input = convert_words_to_digits(include_str!("test_input.txt"));
+    let input = convert_words_to_digits(include_str!("input.txt"));
     sum_calibrations(&input)
 }

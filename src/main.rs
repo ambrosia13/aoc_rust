@@ -7,7 +7,7 @@ fn test_solution<T: Debug>(name: &str, mut func: impl FnMut() -> T) -> T {
 
     let instant = std::time::Instant::now();
 
-    let iterations = 1;
+    let iterations = 5000;
 
     for _ in 0..iterations {
         let _ = func();
