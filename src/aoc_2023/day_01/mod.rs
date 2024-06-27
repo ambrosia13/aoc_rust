@@ -28,20 +28,21 @@ fn convert_words_to_digits(input: &str) -> String {
         ("nine", '9'),
     ];
 
-    const MIN_NUMBER_WORD_LEN: usize = 2;
+    // The shortest number-word is this many characters long
+    const MIN_NUMBER_WORD_LEN: usize = 3;
 
     let mut converted = String::new();
 
     for line in input.lines() {
         let bytes = line.as_bytes();
 
-        let mut i = 0;
-
         // We only need to iterate until the length minus the length of the shortest number-word
         let iter_bound = line.len();
         let iter_bound = iter_bound
             .checked_sub(MIN_NUMBER_WORD_LEN)
             .unwrap_or(iter_bound);
+
+        let mut i = 0;
 
         'character_iter: while i < iter_bound {
             for &(word, digit) in NUMBERS {
