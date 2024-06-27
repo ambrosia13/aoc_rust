@@ -1,85 +1,78 @@
-fn input() -> &'static str {
-    include_str!("input.txt")
-}
-
 fn collect_digits_in_line(line: &str) -> Vec<u32> {
     line.chars().filter_map(|ch| ch.to_digit(10)).collect()
 }
 
-fn sum_calibrations(input: &str) -> u32 {
-    input
-        .trim()
-        .lines()
-        .map(collect_digits_in_line)
-        .map(|digits| digits.first().unwrap() * 10 + digits.last().unwrap())
-        .sum()
-}
-
-fn convert_words_to_digits(input: &str) -> String {
-    const NUMBERS: &[(&str, char)] = &[
-        ("one", '1'),
-        ("two", '2'),
-        ("three", '3'),
-        ("four", '4'),
-        ("five", '5'),
-        ("six", '6'),
-        ("seven", '7'),
-        ("eight", '8'),
-        ("nine", '9'),
+fn collect_numbers_in_line(line: &str) -> Vec<u32> {
+    const NUMBERS: &[(&str, u32)] = &[
+        ("one", 1),
+        ("two", 2),
+        ("three", 3),
+        ("four", 4),
+        ("five", 5),
+        ("six", 6),
+        ("seven", 7),
+        ("eight", 8),
+        ("nine", 9),
+        // ("1", 1),
+        // ("2", 2),
+        // ("3", 3),
+        // ("4", 4),
+        // ("5", 5),
+        // ("6", 6),
+        // ("7", 7),
+        // ("8", 8),
+        // ("9", 9),
     ];
 
-    // The shortest number-word is this many characters long
-    const MIN_NUMBER_WORD_LEN: usize = 3;
+    let bytes = line.as_bytes();
 
-    let mut converted = String::new();
+    let mut digits = Vec::new();
 
-    for line in input.lines() {
-        let bytes = line.as_bytes();
+    let mut i = 0;
 
-        // We only need to iterate until the length minus the length of the shortest number-word
-        let iter_bound = line.len();
-        let iter_bound = iter_bound
-            .checked_sub(MIN_NUMBER_WORD_LEN)
-            .unwrap_or(iter_bound);
+    'character_iter: while i < line.len() {
+        let ch = bytes[i] as char;
 
-        let mut i = 0;
-
-        'character_iter: while i < iter_bound {
+        if ch.is_ascii_digit() {
+            digits.push(ch.to_digit(10).unwrap());
+        } else {
             for &(word, digit) in NUMBERS {
                 if line
                     .get(i..(i + word.len()))
                     .is_some_and(|lookahead| lookahead == word)
                 {
-                    converted.push(digit);
+                    digits.push(digit);
 
                     // We found a word to replace, advance the pointer by the word length
                     // and continue searching from there
-                    i += word.len();
+                    i += word.len() - 1; // leave a buffer of one character, to fix cases like "twone"
                     continue 'character_iter;
                 }
             }
-
-            // No replacement was found, just add the char as-is
-            converted.push(bytes[i] as char);
-
-            i += 1;
         }
 
-        // Push the part of the string we didn't iterate over, since a word can't be replaced
-        // in that substring
-        converted.push_str(&line[iter_bound..line.len()]);
-
-        converted.push('\n');
+        i += 1;
     }
 
-    converted
+    digits
+}
+
+fn sum_calibrations<F>(input: &str, collect_digits: F) -> u32
+where
+    F: FnMut(&str) -> Vec<u32>,
+{
+    input
+        .trim()
+        .lines()
+        .map(collect_digits)
+        .map(|digits| digits.first().unwrap() * 10 + digits.last().unwrap())
+        .sum()
 }
 
 pub fn part_one() -> u32 {
-    sum_calibrations(include_str!("input.txt"))
+    sum_calibrations(include_str!("input.txt"), collect_digits_in_line)
 }
 
 pub fn part_two() -> u32 {
-    let input = convert_words_to_digits(include_str!("input.txt"));
-    sum_calibrations(&input)
+    sum_calibrations(include_str!("input.txt"), collect_numbers_in_line)
 }
