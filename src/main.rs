@@ -4,13 +4,12 @@ mod aoc_2023;
 
 fn test_solution<T: Debug>(name: &str, mut func: impl FnMut() -> T) -> T {
     let val = func();
+    let iterations = 500;
 
     let instant = std::time::Instant::now();
-
-    let iterations = 5000;
-
+    
     for _ in 0..iterations {
-        let _ = func();
+        std::hint::black_box(func());
     }
 
     let elapsed = instant.elapsed();

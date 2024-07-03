@@ -13,15 +13,6 @@ fn collect_numbers_in_line(line: &str) -> Vec<u32> {
         ("seven", 7),
         ("eight", 8),
         ("nine", 9),
-        // ("1", 1),
-        // ("2", 2),
-        // ("3", 3),
-        // ("4", 4),
-        // ("5", 5),
-        // ("6", 6),
-        // ("7", 7),
-        // ("8", 8),
-        // ("9", 9),
     ];
 
     let bytes = line.as_bytes();
@@ -45,7 +36,13 @@ fn collect_numbers_in_line(line: &str) -> Vec<u32> {
 
                     // We found a word to replace, advance the pointer by the word length
                     // and continue searching from there
-                    i += word.len() - 1; // leave a buffer of one character, to fix cases like "twone"
+                    if [4, 6, 8].contains(&digit) {
+                        i += word.len();
+                    } else {
+                        // Since these words can chain other numbers, e.g. "twone",
+                        // advance one less character
+                        i += word.len() - 1;
+                    }
                     continue 'character_iter;
                 }
             }
@@ -54,6 +51,11 @@ fn collect_numbers_in_line(line: &str) -> Vec<u32> {
         i += 1;
     }
 
+    unsafe {
+        std::arch::asm! {
+            "nop"
+        }
+    }
     digits
 }
 
